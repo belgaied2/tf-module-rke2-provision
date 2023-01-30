@@ -110,7 +110,9 @@ resource null_resource "rke2_server1_provisioning" {
     }
     inline = [
       "chmod +x /opt/rke2/install.sh",
-      "INSTALL_RKE2_METHOD=tar INSTALL_RKE2_ARTIFACT_PATH=/opt/rke2 /opt/rke2/install.sh",
+      # TODO : Need to improve the following for both Air Gapped and Non-Airgapped modes
+      #"INSTALL_RKE2_METHOD=tar INSTALL_RKE2_ARTIFACT_PATH=/opt/rke2 /opt/rke2/install.sh",
+      "/opt/rke2/install.sh",
       "systemctl enable rke2-server && systemctl start rke2-server",
 
     ]
@@ -178,7 +180,9 @@ resource null_resource "rke2_servers_others_provisioning" {
     }
     inline = [
       "chmod +x /opt/rke2/install.sh",
-      "INSTALL_RKE2_METHOD=tar INSTALL_RKE2_ARTIFACT_PATH=/opt/rke2 /opt/rke2/install.sh",
+      # TODO : Need to improve the following for both Air Gapped and Non-Airgapped modes
+      #"INSTALL_RKE2_METHOD=tar INSTALL_RKE2_ARTIFACT_PATH=/opt/rke2 /opt/rke2/install.sh",
+      "/opt/rke2/install.sh",
       "systemctl enable rke2-server && systemctl start rke2-server",
 
     ]
@@ -216,7 +220,10 @@ resource null_resource "rke2_workers_provisioning" {
     }
     inline = [
       "chmod +x /opt/rke2/install.sh",
-      "INSTALL_RKE2_METHOD=tar INSTALL_RKE2_ARTIFACT_PATH=/opt/rke2 /opt/rke2/install.sh",
+      # TODO : Need to improve the following for both Air Gapped and Non-Airgapped modes
+      #"INSTALL_RKE2_METHOD=tar INSTALL_RKE2_ARTIFACT_PATH=/opt/rke2 /opt/rke2/install.sh",
+      "/opt/rke2/install.sh",
+      #"INSTALL_RKE2_METHOD=tar INSTALL_RKE2_ARTIFACT_PATH=/opt/rke2 /opt/rke2/install.sh",
       "systemctl enable rke2-agent && systemctl start rke2-agent",
 
     ]
