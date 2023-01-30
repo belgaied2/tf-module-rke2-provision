@@ -32,6 +32,7 @@ resource "null_resource" "rke2_common" {
 
   triggers = {
     conn_user     = var.ssh_user
+    conn_private_key = data.local_file.ssh_private_key.content
     conn_password = var.ssh_password
     conn_host          = var.vm_ips[count.index]
     hostname      = count.index < var.cp_vm_count && var.do_deploy_rancher ? "rancher-${count.index + 1}" : count.index < var.cp_vm_count ? "downstream-cp-${count.index + 1}" : "downstream-wk-${count.index - var.cp_vm_count + 1}"
@@ -79,7 +80,7 @@ resource "null_resource" "rke2_common" {
     connection {
       type     = "ssh"
       user     = self.triggers.conn_user
-      private_key = data.local_file.ssh_private_key.content
+      private_key = self.triggers.conn_private_key
       password = self.triggers.conn_password
       host     = self.triggers.conn_host
     }
