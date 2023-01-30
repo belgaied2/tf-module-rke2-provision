@@ -28,6 +28,11 @@ variable "ssh_password" {
   description = "SSH Password to connect to VM with"
 }
 
+variable "ssh_private_key" {
+  type = string
+  description = "SSH Private Key path to connect to VM with"
+}
+
 variable "vm_name_prefix" {
   description = "Prefix for the VM name in vSphere"
   default     = "rancher-ha"

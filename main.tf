@@ -21,6 +21,11 @@ data "template_file" "rancher_manifest" {
   }
 }
 
+
+data "local_file" "ssh_private_key" {
+ filename = var.ssh_private_key 
+}
+
 resource "null_resource" "rke2_common" {
 
   count = var.wk_vm_count + var.cp_vm_count
@@ -36,6 +41,7 @@ resource "null_resource" "rke2_common" {
     connection {
       type     = "ssh"
       user     = var.ssh_user
+      private_key = data.local_file.ssh_private_key.content
       password = var.ssh_password
       host     = var.vm_ips[count.index]
     }
@@ -60,6 +66,7 @@ resource "null_resource" "rke2_common" {
     connection {
       type     = "ssh"
       user     = var.ssh_user
+      private_key = data.local_file.ssh_private_key.content
       password = var.ssh_password
       host     = var.vm_ips[count.index]
     }
@@ -72,6 +79,7 @@ resource "null_resource" "rke2_common" {
     connection {
       type     = "ssh"
       user     = self.triggers.conn_user
+      private_key = data.local_file.ssh_private_key.content
       password = self.triggers.conn_password
       host     = self.triggers.conn_host
     }
@@ -96,6 +104,7 @@ resource null_resource "rke2_server1_provisioning" {
     connection {
       type     = "ssh"
       user     = var.ssh_user
+      private_key = data.local_file.ssh_private_key.content
       password = var.ssh_password
       host     = var.vm_ips[0]
     }
@@ -105,6 +114,7 @@ resource null_resource "rke2_server1_provisioning" {
     connection {
       type     = "ssh"
       user     = var.ssh_user
+      private_key = data.local_file.ssh_private_key.content
       password = var.ssh_password
       host     = var.vm_ips[0]
     }
@@ -133,6 +143,7 @@ resource "null_resource" "deploy_rancher" {
     connection {
       type     = "ssh"
       user     = var.ssh_user
+      private_key = var.ssh_private_key
       password = var.ssh_password
       host     = var.vm_ips[count.index]
     }
@@ -166,6 +177,7 @@ resource null_resource "rke2_servers_others_provisioning" {
     connection {
       type     = "ssh"
       user     = var.ssh_user
+      private_key = data.local_file.ssh_private_key.content
       password = var.ssh_password
       host     = var.vm_ips[count.index+1]
     }
@@ -175,6 +187,7 @@ resource null_resource "rke2_servers_others_provisioning" {
     connection {
       type     = "ssh"
       user     = var.ssh_user
+      private_key = var.ssh_private_key
       password = var.ssh_password
       host     = var.vm_ips[count.index+1]
     }
@@ -206,6 +219,7 @@ resource null_resource "rke2_workers_provisioning" {
     connection {
       type     = "ssh"
       user     = var.ssh_user
+      private_key = data.local_file.ssh_private_key.content
       password = var.ssh_password
       host     = var.vm_ips[count.index + var.cp_vm_count]
     }
@@ -215,6 +229,7 @@ resource null_resource "rke2_workers_provisioning" {
     connection {
       type     = "ssh"
       user     = var.ssh_user
+      private_key = data.local_file.ssh_private_key.content
       password = var.ssh_password
       host     = var.vm_ips[count.index + var.cp_vm_count]
     }
