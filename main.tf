@@ -38,6 +38,7 @@ resource "null_resource" "rke2_common" {
     hostname      = count.index < var.cp_vm_count && var.do_deploy_rancher ? "rancher-${count.index + 1}" : count.index < var.cp_vm_count ? "downstream-cp-${count.index + 1}" : "downstream-wk-${count.index - var.cp_vm_count + 1}"
   }
 
+
   provisioner "remote-exec" {
     connection {
       type     = "ssh"
@@ -49,20 +50,22 @@ resource "null_resource" "rke2_common" {
     inline = [
       "mkdir $HOME/.ssh",
       "cat > $HOME/.ssh/authorized_keys <<EOF\n${file(var.public_key_path)}\nEOF",
-      "systemctl stop firewalld && systemctl disable firewalld",
-      "mkdir -p /etc/rancher/rke2", 
-      "mkdir -p /var/lib/rancher/rke2/server/manifests",
-      "mkdir -p /var/lib/rancher/rke2/agent/images",
-      "mkdir -p /opt/rke2",
-      "hostnamectl set-hostname ${self.triggers.hostname}"
+      "sudo systemctl stop firewalld && systemctl disable firewalld",
+      "sudo mkdir -p /etc/rancher/rke2", 
+      "sudo mkdir -p /var/lib/rancher/rke2/server/manifests",
+      "sudo mkdir -p /var/lib/rancher/rke2/agent/images",
+      "sudo mkdir -p /opt/rke2",
+      "sudo hostnamectl set-hostname ${self.triggers.hostname}",
+      "sudo cp $HOME/rke2/install.sh /opt/rke2/"
     ]
+    on_failure = continue
   }
 
 
   ## copy install script and RKE2 binary to /opt/rke2
   provisioner "file" {
     source = "${path.module}/rke2"
-    destination = "/opt/"
+    destination = "$HOME"
 
     connection {
       type     = "ssh"
@@ -100,7 +103,7 @@ resource null_resource "rke2_server1_provisioning" {
 
   provisioner "file" {
     content = data.template_file.config_server_yaml.rendered
-    destination = "/etc/rancher/rke2/config.yaml"
+    destination = "$HOME/config.yaml"
 
     connection {
       type     = "ssh"
@@ -120,13 +123,15 @@ resource null_resource "rke2_server1_provisioning" {
       host     = var.vm_ips[0]
     }
     inline = [
-      "chmod +x /opt/rke2/install.sh",
+      "sudo chmod +x /opt/rke2/install.sh",
+      "sudo cp $HOME/config.yaml /etc/rancher/rke2/config.yaml",
       # TODO : Need to improve the following for both Air Gapped and Non-Airgapped modes
       #"INSTALL_RKE2_METHOD=tar INSTALL_RKE2_ARTIFACT_PATH=/opt/rke2 /opt/rke2/install.sh",
-      "INSTALL_RKE2_VERSION=${var.rke2_version} /opt/rke2/install.sh",
-      "systemctl enable rke2-server && systemctl start rke2-server",
+      "sudo INSTALL_RKE2_VERSION=${var.rke2_version} /opt/rke2/install.sh",
+      "sudo systemctl enable rke2-server && sudo systemctl start rke2-server",
 
     ]
+    on_failure = continue
   }
 }
 
@@ -148,6 +153,7 @@ resource "null_resource" "deploy_rancher" {
       password = var.ssh_password
       host     = var.vm_ips[count.index]
     }
+    on_failure = continue
   }
 }
 
@@ -182,6 +188,7 @@ resource null_resource "rke2_servers_others_provisioning" {
       password = var.ssh_password
       host     = var.vm_ips[count.index+1]
     }
+    on_failure = continue
   }
 
   provisioner "remote-exec" {
@@ -193,11 +200,11 @@ resource null_resource "rke2_servers_others_provisioning" {
       host     = var.vm_ips[count.index+1]
     }
     inline = [
-      "chmod +x /opt/rke2/install.sh",
+      "sudo chmod +x /opt/rke2/install.sh",
       # TODO : Need to improve the following for both Air Gapped and Non-Airgapped modes
       #"INSTALL_RKE2_METHOD=tar INSTALL_RKE2_ARTIFACT_PATH=/opt/rke2 /opt/rke2/install.sh",
-      "/opt/rke2/install.sh",
-      "systemctl enable rke2-server && systemctl start rke2-server",
+      "sudo INSTALL_RKE2_VERSION=${var.rke2_version} /opt/rke2/install.sh",
+      "sudo systemctl enable rke2-server && sudo systemctl start rke2-server",
 
     ]
     on_failure = continue
@@ -224,6 +231,7 @@ resource null_resource "rke2_workers_provisioning" {
       password = var.ssh_password
       host     = var.vm_ips[count.index + var.cp_vm_count]
     }
+
   }
 
   provisioner "remote-exec" {
@@ -235,12 +243,12 @@ resource null_resource "rke2_workers_provisioning" {
       host     = var.vm_ips[count.index + var.cp_vm_count]
     }
     inline = [
-      "chmod +x /opt/rke2/install.sh",
+      "sudo chmod +x /opt/rke2/install.sh",
       # TODO : Need to improve the following for both Air Gapped and Non-Airgapped modes
       #"INSTALL_RKE2_METHOD=tar INSTALL_RKE2_ARTIFACT_PATH=/opt/rke2 /opt/rke2/install.sh",
-      "/opt/rke2/install.sh",
+      "sudo INSTALL_RKE2_VERSION=${var.rke2_version} /opt/rke2/install.sh",
       #"INSTALL_RKE2_METHOD=tar INSTALL_RKE2_ARTIFACT_PATH=/opt/rke2 /opt/rke2/install.sh",
-      "systemctl enable rke2-agent && systemctl start rke2-agent",
+      "sudo systemctl enable rke2-agent && sudo systemctl start rke2-agent",
 
     ]
     on_failure = continue
