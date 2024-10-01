@@ -54,3 +54,8 @@ variable "do_deploy_rancher" {
 }
 
 
+variable "rke2_version" {
+  description = "RKE2 Version to deploy"
+  default = "v1.30.4+rke2r1"
+  
+}
