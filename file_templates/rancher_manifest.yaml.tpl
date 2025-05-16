@@ -30,6 +30,7 @@ spec:
   chart: rancher
   repo: https://releases.rancher.com/server-charts/latest
   targetNamespace: cattle-system
+  version: ${rancher_version}
   valuesContent: |-
     hostname: ${rancher_hostname}
     ingress:
