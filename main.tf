@@ -18,6 +18,7 @@ data "template_file" "rancher_manifest" {
   template = "${file("${path.module}/file_templates/rancher_manifest.yaml.tpl")}"
   vars = {
     rancher_hostname = var.rancher_hostname
+    rancher_version = var.rancher_version
   }
 }
 
