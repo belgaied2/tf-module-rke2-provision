@@ -59,3 +59,9 @@ variable "rke2_version" {
   default = "v1.30.4+rke2r1"
   
 }
+
+variable "rancher_version" {
+  type = string
+  description = "Rancher version to be deployed"
+  default = "v2.9.2"
+}
